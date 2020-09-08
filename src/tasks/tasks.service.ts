@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Task, TaskStatus } from './task.model';
 import * as uuid from 'uuid';
 import { CreateTaskDto } from './dto/create-task.dto';
@@ -30,7 +30,11 @@ export class TasksService {
   }
 
   getTaskById(id: string): Task {
-    return this.tasks.find(task => task.id === id);
+    const foundTask = this.tasks.find(task => task.id === id);
+    if (!foundTask) {
+      throw new NotFoundException(`Task with ID "${id}" not found`);
+    }
+    return foundTask;
   }
 
   createTasks(createTaskDto: CreateTaskDto): Task {
@@ -45,9 +49,6 @@ export class TasksService {
 
   updateTask(id: string, updateTaskDto: UpdateTaskDto): Task {
     let task = this.getTaskById(id);
-    if (!task) {
-      throw Error('task가 존재하지 않습니다. ');
-    }
     task = {
       ...task,
       ...updateTaskDto,
@@ -57,14 +58,12 @@ export class TasksService {
 
   updateTaskStatus(id: string, status: TaskStatus): Task {
     const task = this.getTaskById(id);
-    if (!task) {
-      throw Error('task가 존재하지 않습니다. ');
-    }
     task.status = status;
     return task;
   }
 
   deleteTask(id: string): void {
-    this.tasks = this.tasks.filter(task => task.id !== id);
+    const found = this.getTaskById(id)
+    this.tasks = this.tasks.filter(task => task.id !== found.id);
   }
 }
