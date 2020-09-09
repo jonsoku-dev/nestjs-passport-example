@@ -15,11 +15,11 @@ const dbConfig: IDbConfig = config.get('db');
 
 export const typeOrmConfig: TypeOrmModuleOptions = {
   type: dbConfig.type,
-  host: dbConfig.host,
-  port: dbConfig.port,
-  username: dbConfig.username,
-  password: dbConfig.password,
-  database: dbConfig.database,
+  host: process.env.RDM_HOST || dbConfig.host,
+  port: parseInt(process.env.RDM_PORT, 10) || dbConfig.port,
+  username: process.env.RDM_USERNAME || dbConfig.username,
+  password: process.env.RDM_PASSWORD || dbConfig.password,
+  database: process.env.RDM_DB_NAME || dbConfig.database,
   entities: [__dirname + '/../**/*.entity.{js,ts}'],
   synchronize: dbConfig.synchronize,
 };
